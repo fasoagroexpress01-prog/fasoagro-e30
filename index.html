@@ -224,10 +224,10 @@ $("imf").onchange=e=>{const f=e.target.files[0];if(f)f.text().then(imp)};
 $("sync").onclick=async()=>{const m=$("syncm");m.className="msg";if(!pw)pw=$("spw").value;if(!pw){m.textContent="Entrez votre mot de passe.";return}
  m.textContent="Synchronisation…";
  try{const r=await fetch(SYNC.url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({role:me,pw:pw,rows:mine()})});
-  const d=await r.json();
+  const tx=await r.text();let d;try{d=JSON.parse(tx)}catch(x){m.textContent="Réponse inattendue du serveur : "+tx.replace(/<[^>]*>/g," ").replace(/\s+/g," ").slice(0,200);return}
   if(!d.ok){if(d.error==="auth"){pw="";$("spwr").classList.remove("hide")}m.textContent=d.error==="auth"?"Mot de passe refusé par le serveur.":"Erreur : "+d.error;return}
   imp(JSON.stringify({app:"FAE30",rows:d.rows}));m.className="msg ok";m.textContent="Synchronisation terminée"+(d.skipped?" ("+d.skipped+" fiche(s) refusée(s) : CNIB en double ou fiche déjà validée).":".")}
- catch(e){m.textContent="Pas de connexion, ou adresse du serveur incorrecte."}};
+ catch(e){m.textContent="Échec de la requête ("+(e&&e.message?e.message:e)+")."}};
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 const s=store.get("e30_sess","");ROLES.includes(s)?start(s):showLogin();
 </script></body></html>
